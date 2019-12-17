@@ -81,26 +81,66 @@ class CPU:
 
         # declare opcodes for clarity
         LDI = 0b10000010
+        PRN = 0b01000111
         R0 = 00000000
         
         ## boot cpu
         running = True
 
+        # reset instruction register
+        ir = 0
+
         ## reset program counter
         self.pc = 0
 
+        ## figure out how many instructions
+        ## to increment progr by
+        # inc_prog_by = 1
+        # instrx_bytes = ir
+
+        # if ir == 0b10:
+        #     inc_prog_by = 3
+
+        # elif ir == 0b01:
+        #     inc_prog_by = 2
+        
+        # elif ir == 0b00:
+        #     inc_prog_by = 1
+
         ## run program
         while running:
-            # starts with first intrx from program
-            current_instruction = ram[pc]
+            ## read memory address stored in register pc
+             ## and store results in ir
+            ir = self.ram[self.pc]
+
+            ## store next two bytes of data after ir
+            operand_a = ram_read(pc + 1)
+            operand_b = ram_read(pc + 2)
+
 
             ## implement LDI opcode
-            if current_instruction == LDI:
+            if ir == LDI:
                 print("LDI")
-                # save register
-                self.register[0] ==
+                # get value to save
+                value = operand_b
+
+                ## get register
+                reg_num = operand_a
+
+                self.register[reg_num] = value
+
+                ## increment program counter
+                self.pc += 3
+            
+            elif ir == PRN:
+                ## get value from register
+                value = self.register[operand_a]
+
+                ## print value
+                print(f"value at register {operand_a} is value : {value}")
 
 
-                self.pc += 1 # how many do we need?
+
+               
         
 
