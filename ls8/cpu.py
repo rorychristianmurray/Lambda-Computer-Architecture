@@ -6,6 +6,7 @@ import sys
 
 LDI = 0b10000010
 PRN = 0b01000111
+MUL = 0b10100010
 HLT = 0b00000001
 
 class CPU:
@@ -20,23 +21,43 @@ class CPU:
     def load(self):
         """Load a program into memory."""
 
+        # get filename from CL
+        filename = sys.argv[1]
+
         address = 0
+        
+        with open(filename) as f:
+            for line in f:
+                print(line)
+                n = line.split('#')
+                n[0] = n[0].strip()
+
+                if n[0] == '':
+                    continue
+                val = int(n[0], 2)
+                self.ram[address] = val
+                address += 1
+        
+        print(f"self.ram : {self.ram}")
+
+
+
 
         # For now, we've just hardcoded a program:
 
-        program = [
-            # From print8.ls8
-            0b10000010, # LDI R0,8
-            0b00000000,
-            0b00001000,
-            0b01000111, # PRN R0
-            0b00000000,
-            0b00000001, # HLT
-        ]
+        # program = [
+        #     # From print8.ls8
+        #     0b10000010, # LDI R0,8
+        #     0b00000000,
+        #     0b00001000,
+        #     0b01000111, # PRN R0
+        #     0b00000000,
+        #     0b00000001, # HLT
+        # ]
 
-        for instruction in program:
-            self.ram[address] = instruction
-            address += 1
+        # for instruction in program:
+        #     self.ram[address] = instruction
+        #     address += 1
 
 
     def alu(self, op, reg_a, reg_b):
@@ -141,6 +162,20 @@ class CPU:
                 ## increment pc
                 self.pc += 2
             
+            elif ir == MUL:
+                ## multiply following two instrx
+                ## which are the values from 
+                # the specified registers
+                ## operand_a and operand_b
+
+                ## store computed value in
+                ## register a
+                self.register[operand_a] = mult_val
+
+                ## increment program counter
+                self.pc += 3
+           
+    
             elif ir == HLT:
                 ## halt
                 running = False
