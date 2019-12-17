@@ -2,12 +2,18 @@
 
 import sys
 
+# declare opcodes for clarity
+
+LDI = 0b10000010
+PRN = 0b01000111
+HLT = 0b00000001
+
 class CPU:
     """Main CPU class."""
 
     def __init__(self):
         """Construct a new CPU."""
-        self.ram = [] # 256 bytes of memory
+        self.ram = [0] * 256 # 256 bytes of memory
         self.register = [0] * 8 # general purpose registers
         self.pc = 0
 
@@ -78,17 +84,9 @@ class CPU:
 
     def run(self):
         """Run the CPU."""
-
-        # declare opcodes for clarity
-        LDI = 0b10000010
-        PRN = 0b01000111
-        R0 = 00000000
         
         ## boot cpu
         running = True
-
-        # reset instruction register
-        ir = 0
 
         ## reset program counter
         self.pc = 0
@@ -111,21 +109,22 @@ class CPU:
         while running:
             ## read memory address stored in register pc
              ## and store results in ir
-            ir = self.ram[self.pc]
+            ir = self.ram_read(self.pc)
 
             ## store next two bytes of data after ir
-            operand_a = ram_read(pc + 1)
-            operand_b = ram_read(pc + 2)
-
+            operand_a = self.ram_read(self.pc + 1)
+            operand_b = self.ram_read(self.pc + 2)
 
             ## implement LDI opcode
             if ir == LDI:
                 print("LDI")
-                # get value to save
-                value = operand_b
 
                 ## get register
                 reg_num = operand_a
+
+                # get value to save
+                value = operand_b
+
 
                 self.register[reg_num] = value
 
@@ -138,6 +137,19 @@ class CPU:
 
                 ## print value
                 print(f"value at register {operand_a} is value : {value}")
+
+                ## increment pc
+                self.pc += 2
+            
+            elif ir == HLT:
+                ## halt
+                running = False
+                self.pc += 1
+            
+            else: 
+                print(f"unknown instruction at address pc {self.pc}")
+                sys.exit(1)
+        return
 
 
 
