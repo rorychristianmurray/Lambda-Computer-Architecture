@@ -7,7 +7,9 @@ class CPU:
 
     def __init__(self):
         """Construct a new CPU."""
-        pass
+        self.ram = [] # 256 bytes of memory
+        self.register = [0] * 8 # general purpose registers
+        self.pc = 0
 
     def load(self):
         """Load a program into memory."""
@@ -60,6 +62,37 @@ class CPU:
 
         print()
 
+    def ram_read(self):
+        pass    
+
+    def ram_write(self):
+        pass   
+
     def run(self):
         """Run the CPU."""
-        pass
+
+        # declare opcodes for clarity
+        LDI = 0b10000010
+        R0 = 00000000
+        
+        ## boot cpu
+        running = True
+
+        ## reset program counter
+        self.pc = 0
+
+        ## run program
+        while running:
+            # starts with first intrx from program
+            current_instruction = ram[pc]
+
+            ## implement LDI opcode
+            if current_instruction == LDI:
+                print("LDI")
+                # save register
+                self.register[0] ==
+
+
+                self.pc += 1 # how many do we need?
+        
+
