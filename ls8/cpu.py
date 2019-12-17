@@ -62,11 +62,19 @@ class CPU:
 
         print()
 
-    def ram_read(self):
-        pass    
+    def ram_read(self, MAR):
+        ## takes an adr as an arg and returns
+        ## value at that adr in RAM
+        read_val = self.ram[MAR]
+        return read_val
+            
 
-    def ram_write(self):
-        pass   
+    def ram_write(self, MAR, MDR):
+        ## takes and adr and a val as an argument 
+        ## and assigns that val to the associated
+        ## adr in RAM
+        self.ram[MAR] = MDR
+        return   
 
     def run(self):
         """Run the CPU."""
