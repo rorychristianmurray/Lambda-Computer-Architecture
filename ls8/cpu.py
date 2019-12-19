@@ -8,6 +8,9 @@ LDI = 0b10000010
 PRN = 0b01000111
 MUL = 0b10100010
 HLT = 0b00000001
+POP = 0b01000110
+PUSH = 0b01000101
+SP = 7
 
 class CPU:
     """Main CPU class."""
@@ -105,6 +108,7 @@ class CPU:
 
     def run(self):
         """Run the CPU."""
+        print(f" value of SP : {SP}")
         
         ## boot cpu
         running = True
@@ -168,19 +172,50 @@ class CPU:
                 # the specified registers
                 ## operand_a and operand_b
 
+                mult_val = self.register[operand_a] * self.register[operand_b]
+  
                 ## store computed value in
                 ## register a
                 self.register[operand_a] = mult_val
 
                 ## increment program counter
                 self.pc += 3
-           
     
             elif ir == HLT:
                 ## halt
                 running = False
                 self.pc += 1
+
+            elif ir == PUSH:
+                # decrement sp 
+                self.register[SP] -=1
+                print(f"pc pusha : {self.pc}")
+
+                # copy value from register 
+                # to memory at sp
+                reg_num = self.ram[self.pc + 1]
+                value = self.register[reg_num]
+                self.ram[self.register[SP]] = value
+
+                # increment pc
+                self.pc += 2
+
             
+            elif ir == POP:
+                # copy the value from the
+                # top of the stack into the
+                # given register
+                print(f"pc poppa : {self.pc}")
+                reg_num = self.ram[self.pc + 1]
+                value = self.ram[self.register[SP]]
+                self.register[reg_num] = value
+
+                # increment sp
+                self.register[SP] += 1
+
+                # increment pc
+                self.pc += 2
+
             else: 
                 print(f"unknown instruction at address pc {self.pc}")
                 sys.exit(1)
