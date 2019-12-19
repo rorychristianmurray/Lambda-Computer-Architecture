@@ -11,6 +11,10 @@ HLT = 0b00000001
 POP = 0b01000110
 PUSH = 0b01000101
 SP = 7
+CALL = 0b01010000
+RET = 0b00010001
+ADD = 0b10100000
+
 
 class CPU:
     """Main CPU class."""
@@ -215,9 +219,42 @@ class CPU:
 
                 # increment pc
                 self.pc += 2
+            
+            elif ir == CALL:
+                ## push the return address
+                ## to the stack
+                return_address = self.pc + 2 # don't change again
+                self.register[SP] -= 1
+                self.ram[self.register[SP]] = return_address
+
+                # set the pc to the value in the register
+                reg_num = self.ram[self.pc + 1]
+                sub_address = self.register[reg_num]
+                self.pc = sub_address # we make the jump to ram
+            
+            elif ir == RET:
+                # pop the return address off the stack
+                return_address = self.ram[self.register[SP]]
+                self.register[SP] += 1
+
+                # store it in the PC
+                self.pc = return_address
+            
+            elif ir == ADD:
+                ## add values from
+                ## next two registers
+                add_val = self.register[operand_a] + self.register[operand_b]
+
+                ## save in registerA
+                self.register[operand_a] = add_val
+
+                ## advance the program by 3
+                self.pc += 3
+
+
 
             else: 
-                print(f"unknown instruction at address pc {self.pc}")
+                print(f"unknown instruction {self.register[self.pc]} at address pc {self.pc}")
                 sys.exit(1)
         return
 
