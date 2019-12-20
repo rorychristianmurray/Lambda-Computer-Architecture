@@ -14,6 +14,10 @@ SP = 7
 CALL = 0b01010000
 RET = 0b00010001
 ADD = 0b10100000
+CMP = 0b10100111
+JMP = 0b01010100
+JNE = 0b01010110
+JEQ = 0b01010101
 
 
 class CPU:
@@ -24,6 +28,7 @@ class CPU:
         self.ram = [0] * 256 # 256 bytes of memory
         self.register = [0] * 8 # general purpose registers
         self.pc = 0
+        self.FL = [0] * 3 # FL flags
 
     def load(self):
         """Load a program into memory."""
@@ -48,31 +53,33 @@ class CPU:
         print(f"self.ram : {self.ram}")
 
 
-
-
-        # For now, we've just hardcoded a program:
-
-        # program = [
-        #     # From print8.ls8
-        #     0b10000010, # LDI R0,8
-        #     0b00000000,
-        #     0b00001000,
-        #     0b01000111, # PRN R0
-        #     0b00000000,
-        #     0b00000001, # HLT
-        # ]
-
-        # for instruction in program:
-        #     self.ram[address] = instruction
-        #     address += 1
-
-
     def alu(self, op, reg_a, reg_b):
         """ALU operations."""
 
         if op == "ADD":
             self.reg[reg_a] += self.reg[reg_b]
         #elif op == "SUB": etc
+        elif op == "CMP":
+            cmp_val = self.register[reg_a] - self.register[reg_b]
+            if cmp_val > 0:
+                # set greater than flag to 1
+                # otherwise set to 0
+                self.FL[0] = 0
+                self.FL[1] = 1
+                self.FL[2] = 0
+
+            elif cmp_val == 0:
+                # set equal than flag to 1
+                # otherwise set to 0
+                self.FL[0] = 0
+                self.FL[1] = 0
+                self.FL[2] = 1
+            else:
+                # set less than flag to 1
+                # otherwise set to 0
+                self.FL[0] = 1
+                self.FL[1] = 0
+                self.FL[2] = 0
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -113,6 +120,7 @@ class CPU:
     def run(self):
         """Run the CPU."""
         print(f" value of SP : {SP}")
+        print(f" self.FL : {self.FL}")
         
         ## boot cpu
         running = True
@@ -250,6 +258,40 @@ class CPU:
 
                 ## advance the program by 3
                 self.pc += 3
+            
+            elif ir == CMP: 
+                ## run through alu
+                self.alu("CMP", operand_a, operand_b)
+
+                self.pc += 3
+            
+            elif ir == JMP:
+                # set the pc to the address
+                self.pc = self.register[operand_a]
+            
+            elif ir == JEQ:
+                if self.FL[2] == 1:
+                    self.pc = self.register[operand_a]
+                else:
+                    ## else advance the program
+                    self.pc += 2
+
+            elif ir == JNE:
+                if self.FL[2] == 0:
+                    # if condition met jump
+                    self.pc = self.register[operand_a]
+                else:
+                    ## else advance the program
+                    self.pc += 2
+            
+
+            
+            elif ir == JNE:
+                if FL == 0b00000000:
+                    self.pc = self.register[operand_a]
+
+
+
 
 
 
@@ -257,9 +299,3 @@ class CPU:
                 print(f"unknown instruction {self.register[self.pc]} at address pc {self.pc}")
                 sys.exit(1)
         return
-
-
-
-               
-        
-
